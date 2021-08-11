@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "clustering:lib"
+
+    - path: "./app/Main.hs"
+      component: "clustering:exe:clustering-exe"
+
+    - path: "./app/Paths_clustering.hs"
+      component: "clustering:exe:clustering-exe"
+
+    - path: "./test"
+      component: "clustering:test:clustering-test"

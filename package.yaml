@@ -1,0 +1,54 @@
+name:                clustering
+version:             0.1.0.0
+github:              "zitkat/clustering"
+license:             BSD3
+author:              "Tomáš Zítka"
+maintainer:          "tozitka@gmail.com"
+copyright:           "2021 Tomáš Zítka"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/zitkat/clustering#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- foldl
+- lens
+- containers
+- vector
+
+library:
+  source-dirs: src
+
+executables:
+  clustering-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - clustering
+
+tests:
+  clustering-test:
+    main:                Main.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - '"-with-rtsopts=-N -qg"'
+    dependencies:
+    - clustering
+    - hspec
+    - QuickCheck
