@@ -13,9 +13,6 @@ spec = do
             bsasTest "BSAS" bsas
             bsasTest "MBSAS" mbsas
             ttsasTest "TTSAS" ttsas
-    describe "Support functions" $ do
-        it "SelectMMin" $ do
-            selectMMin Nothing (Just (1, 2)) `shouldBe` Just (1, 2)
 
 bsasTest :: String -> (Float -> Int -> (Float -> [Float] -> Float) -> [Float] -> [[Float]]) -> SpecWith ()
 bsasTest name sch = describe name $ do
