@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Clustering.Data
       Clustering.Hierarchical
       Clustering.Measures
       Clustering.Sequential

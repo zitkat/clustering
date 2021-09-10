@@ -34,5 +34,5 @@ intersectN = intersectN' 0
     where 
         intersectN' n [] _ = n
         intersectN' n _ [] = n
-        intersectN' n (a:s1) s2 | a `elem` s2 = intersectN' (n + 1) s1 s2
+        intersectN' n (a:s1) s2 | a `elem` s2 = intersectN' (n + 1) s1 s2 -- TODO would some sort of strict evaluation be helpful here?
                                 |otherwise    = intersectN' n s1 s2

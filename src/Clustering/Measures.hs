@@ -8,6 +8,7 @@ import qualified Data.Vector as V
 import Numeric.LinearAlgebra
 
 import Clustering.Hierarchical
+import Clustering.Data
 
 meanCD :: Fractional c => c -> [c] -> c
 meanCD a = L.fold L.mean . map (abs . (a -))
@@ -58,14 +59,14 @@ meanAgg f a = L.fold L.mean . map (f a)
 
 
 reprDD :: Dendrogram (V.Vector Float ) 
-    -> Dendrogram (V.Vector Float ) -> Float
+    -> Dendrogram (V.Vector Float )  -> Float
 reprDD DNil DNil = 0
 reprDD DNil _ = 0
 reprDD _ DNil = 0
 reprDD DNode{repr=r1} DNode{repr=r2} = euc r1 r2
 
-meanDRU :: Dendrogram (V.Vector Float ) 
-    -> Dendrogram (V.Vector Float) -> V.Vector Float
+meanDRU :: Dendrogram (V.Vector Float )  
+    -> Dendrogram (V.Vector Float)  -> V.Vector Float
 meanDRU DNil DNil = undefined
 meanDRU DNil _ = undefined
 meanDRU _ DNil = undefined

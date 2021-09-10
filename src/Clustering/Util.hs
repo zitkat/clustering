@@ -4,17 +4,42 @@ import Data.List (elemIndex, foldl1', delete)
 import Data.List.Lens
 import Control.Lens
 
+
+-- argmin :: Ord a1 => (a2 -> a1) -> [a2] -> Maybe Int
+-- argmin f s = let fs = map f s in
+--     elemIndex (foldl1' min fs) fs
+
 argmin :: Ord a1 => (a2 -> a1) -> [a2] -> Maybe Int
-argmin f s = let fs = map f s in
-    elemIndex (foldl1' min fs) fs
+argmin = arg___ min
 
 argminval :: Ord a1 => (a2 -> a1) -> [a2] -> Maybe (Int, a1)
-argminval f s = let fs = map f s
-                    minval = foldl1' min fs
-                in elemIndex minval fs >>= (\a -> Just (a, minval))
+argminval = arg___val min
 
-fstf :: (a -> b -> (a, c)) -> a -> b -> a
+argmax :: Ord t => (a -> t) -> [a] -> Maybe Int
+argmax = arg___ max
+
+argmaxval :: Ord t => (a -> t) -> [a] -> Maybe (Int, t) 
+argmaxval = arg___val max
+
+arg___val :: Ord t => (t -> t -> t) -> (a -> t) -> [a] -> Maybe (Int, t)
+arg___val sel f s = let fs = map f s
+                        val = foldl1' sel fs
+                    in elemIndex val fs >>= (\a -> Just (a, val))
+
+
+arg___ :: (Ord t) => (t -> t -> t) -> (a -> t) -> [a] -> Maybe Int 
+arg___ sel f s = let fs = map f s in
+    elemIndex (foldl1' sel fs) fs
+
+
+avg :: (Fractional t, Num t) => [t] -> t
+avg xs = (((1 / fromIntegral (length xs)) * ) . sum)  xs
+
+fstf :: (a -> b -> (c, d)) -> a -> b -> c
 fstf f a b = fst $ f a b
+
+sndf :: (a -> b -> (c, d)) -> a -> b -> d
+sndf f a b = snd $ f a b
 
 -- | Taken from
 --  https://stackoverflow.com/a/49681662/4749381
