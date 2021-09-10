@@ -96,5 +96,27 @@ buildSimilarityMtrx d xs = l >< l $ concatMap (\x -> map (d x) xs) xs
 muas :: Matrix Float -> (Matrix Float -> Int -> Int -> Int) -> [[Int]]
 muas p d = undefined -- TODO optimized agglomerative scheme using matrix update
 
+-- | Modified general divisive scheme
+mgds :: (Ord t, Num t, Fractional t) =>
+    (a -> a -> t) -- ^ dissimiliarity measure
+    -> [a]
+    -> [[[a]]]
+mgds d [] = []
+mgds d xs = divideAll [[xs]]
+    where
+        divideAll [] = []
+        divideAll acs@(c:cs) = if length cs == length xs then acs
+                                                         else divideAll $ (c >>= splitCluster) : acs
+        splitCluster [] = []
+        splitCluster xs = reassign $ outsider xs
+                      -- map (((1/fromIntegral (length xs) * ) . sum) . (\x -> map (d x) xs)) xs
+        outsider xs = case argmax id $ map (avg . flip map xs . d) xs of
+                        Nothing -> error "What happend?!"
+                        Just n -> case pop n xs of 
+                             (as, Nothing) -> ([], as)
+                             (as, Just a) -> ([a], as)
 
+        reassign ([], os) = [os]
+        reassign (ns, []) = [ns]
+        reassign (ns, as) = [ns, as]
                             
