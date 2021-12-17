@@ -40,6 +40,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - clustering
+    when:
+    - condition: false
+      other-modules: Paths_clustering
 
 tests:
   clustering-test:
