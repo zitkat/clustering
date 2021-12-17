@@ -2,7 +2,7 @@ module Clustering.Util where
 
 import Data.List (elemIndex, foldl1', delete)
 import Data.List.Lens
-import Control.Lens
+import Control.Lens 
 
 
 -- argmin :: Ord a1 => (a2 -> a1) -> [a2] -> Maybe Int

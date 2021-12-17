@@ -4,6 +4,9 @@ import Control.Monad ( join )
 import Debug.Trace ( trace )
 import Clustering.Util
 
+
+-- | Basic Sequential Algorithmic Scheme
+--  with element - cluster distance computed as aggregation element-element distance.
 bsas1agg :: (Ord t) =>
     t
     -> Int
@@ -20,13 +23,14 @@ bsas1agg theta q d cdagg (x : xs) = bsas1' xs [[x]]
         updateClusters x cs = 
             case argmin (cdagg d x) cs of
                 Just n -> 
-                    if (cdagg d x) (cs !! n) < theta
+                    if cdagg d x (cs !! n) < theta
                         then x `insertInto` n $ cs
                         else if length cs < q
                                 then [x] : cs
                                 else take n cs ++ [x:(cs !! n)] ++ drop (n + 1) cs
                 Nothing -> error "Should never happen!" -- TODO use typesystem to infer?
 
+-- | Basic Sequential Algorithmic Scheme
 bsas :: (Ord t) =>
     t                       -- ^ theta maximal distance to cluster
     -> Int                  -- ^ max number of clusters
@@ -42,6 +46,7 @@ bsas theta q cd xs = foldl updateClusters [] xs
                         else [x] : clstrs
             Nothing -> [x] : clstrs
 
+-- | Modified Basic Sequential Algorithmic Scheme
 mbsas :: (Ord t) =>
     t
     -> Int
@@ -68,6 +73,8 @@ mbsas theta q cd (x : xs) = uncurry doClassify $ doCluster [[x]] xs []
         doClassify clstrs [] = clstrs
         doClassify clstrs xs = foldl (classifyItem cd) clstrs xs
 
+
+-- | Two-Threshold Sequential Algorithmic Scheme
 ttsas :: (Ord t) =>
     t                       -- ^ upper bound on distance to cluster to merge
     -> t                    -- ^ lower bound to create new cluster

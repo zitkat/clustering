@@ -112,7 +112,7 @@ mgds d xs = divideAll [[xs]]
                       -- map (((1/fromIntegral (length xs) * ) . sum) . (\x -> map (d x) xs)) xs
         outsider xs = case argmax id $ map (avg . flip map xs . d) xs of
                         Nothing -> error "What happend?!"
-                        Just n -> case pop n xs of 
+                        Just n -> case pop n xs of
                              (as, Nothing) -> ([], as)
                              (as, Just a) -> ([a], as)
 
