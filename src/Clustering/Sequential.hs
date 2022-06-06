@@ -6,13 +6,13 @@ import Clustering.Util
 
 
 -- | Basic Sequential Algorithmic Scheme
---  with element - cluster distance computed as aggregation element-element distance.
+--  with element-cluster distance computed as aggregation of element-element distance.
 bsas1agg :: (Ord t) =>
-    t
-    -> Int
-    -> (a -> a -> t)                    -- ^ element - element distance
-    -> ((a -> a -> t) -> a -> [a] -> t) -- ^ element - cluster distance aggregator
-    -> [a]
+    t                                   -- ^ distance treshold
+    -> Int                              -- ^ upper bound on number of clusters
+    -> (a -> a -> t)                    -- ^ element-element distance
+    -> ((a -> a -> t) -> a -> [a] -> t) -- ^ element-cluster distance aggregator
+    -> [a]                              -- ^ elemtents
     -> [[a]]
 bsas1agg _ _ _ _ [] = []
 bsas1agg _ _ _ _ [x] = [[x]]
@@ -27,7 +27,7 @@ bsas1agg theta q d cdagg (x : xs) = bsas1' xs [[x]]
                         then x `insertInto` n $ cs
                         else if length cs < q
                                 then [x] : cs
-                                else take n cs ++ [x:(cs !! n)] ++ drop (n + 1) cs
+                                else x `insertInto` n $ cs
                 Nothing -> error "Should never happen!" -- TODO use typesystem to infer?
 
 -- | Basic Sequential Algorithmic Scheme
@@ -35,7 +35,7 @@ bsas :: (Ord t) =>
     t                       -- ^ theta maximal distance to cluster
     -> Int                  -- ^ max number of clusters
     -> (a -> [a] -> t)      -- ^ element - cluster distance
-    -> [a]
+    -> [a]                  -- ^ elemtents
     -> [[a]]
 bsas _ _ _ [] = []
 bsas theta q cd xs = foldl updateClusters [] xs
@@ -48,10 +48,10 @@ bsas theta q cd xs = foldl updateClusters [] xs
 
 -- | Modified Basic Sequential Algorithmic Scheme
 mbsas :: (Ord t) =>
-    t
-    -> Int
+    t                       -- ^ theta maximal distance to cluster
+    -> Int                  -- ^ max number of clusters
     -> (a -> [a] -> t)      -- ^ element - cluster distance
-    -> [a]
+    -> [a]                  -- ^ elemtents
     -> [[a]]
 mbsas _ _ _ [] = []
 mbsas theta q cd (x : xs) = uncurry doClassify $ doCluster [[x]] xs []
@@ -79,7 +79,7 @@ ttsas :: (Ord t) =>
     t                       -- ^ upper bound on distance to cluster to merge
     -> t                    -- ^ lower bound to create new cluster
     -> (a -> [a] -> t)      -- ^ element - cluster distance
-    -> [a]
+    -> [a]                  -- ^ elemtents
     -> [[a]]
 ttsas theta1 theta2 cd = buildClusters 0 [] []
     where

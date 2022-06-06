@@ -57,7 +57,9 @@ deleteN cons n xs = flipTfo xs $ folded . ifiltered (\i _ -> i /= n)
 deleteList :: Int -> [a] -> [a]
 deleteList = deleteN (:)
 
-dels :: [Int] -> [a] -> [a]
+
+-- | delete multiple elements from list based on list of indexese
+dels :: [Int] -> [a] -> [a] 
 dels idcs l = l ^.. folded . ifiltered (\k _ -> foldr (\i b -> i /= k && b) True idcs)
 
 del :: Int -> [a] -> [a]

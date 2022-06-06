@@ -10,6 +10,8 @@ data Dendrogram a = DNode {
                 left :: Dendrogram a,
                 right :: Dendrogram a} | DNil
 
+-- | construct dendrogram leaf 
+--  i.e. node without children with zero level and zero meas
 dLeaf :: a -> Dendrogram a
 dLeaf a = DNode a 0 0 DNil DNil
 

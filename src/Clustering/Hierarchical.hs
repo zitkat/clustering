@@ -11,14 +11,19 @@ import Debug.Trace ( trace )
 import Clustering.Util
 import Clustering.Data
 
-
-findClosest2 :: (Ord t) => (a -> a -> t) -> [a] -> Maybe ((Int, Int), t)
+-- | In list of elements find closest pair
+findClosest2 :: (Ord t) => 
+        (a -> a -> t)               -- ^ element-element distance
+        -> [a]                      -- ^ elements
+        -> Maybe ((Int, Int), t)    -- (el1. idex, el2 index), 
 findClosest2 _ []  = Nothing
 findClosest2 f cls = getidx r1 r2
     where
         r1 = findClosest1s f cls
         r2 = argminval (snd <$>) r1
-        getidx :: [Maybe (Int, t)] -> Maybe (Int, Maybe t) -> Maybe ((Int, Int), t)
+        getidx :: [Maybe (Int, t)] 
+            -> Maybe (Int, Maybe t) 
+            -> Maybe ((Int, Int), t)
         getidx l (Just (i, Just v1)) = case l !! i of
           Nothing -> Nothing
           Just (j, v2) -> Just ((i, j), v1)
@@ -26,7 +31,10 @@ findClosest2 f cls = getidx r1 r2
         getidx _ Nothing = Nothing
 
 
-findClosest1s :: (Ord t) => (a -> a -> t) -> [a] -> [Maybe (Int, t)]
+findClosest1s :: (Ord t) => 
+        (a -> a -> t)           -- ^ element-element distance
+        -> [a]                  -- ^ elements
+        -> [Maybe (Int, t)]     -- ^ for each element its closest neighbour index and distance
 findClosest1s _ [] = []
 findClosest1s f ls = reverse $ findClosest1s' [] ls []
     where
@@ -39,7 +47,7 @@ findClosest1s f ls = reverse $ findClosest1s' [] ls []
                             -- shift right index
                         : cl
 
-findClosest :: (Ord t) =>  (a -> a -> t) -> a -> [a] -> Maybe (Int, t)
+findClosest :: (Ord t) => forall a. (a -> a -> t) -> a -> [a] -> Maybe (Int, t)
 findClosest _ _ [] = Nothing
 findClosest d x ls = argminval (d x) ls
 
@@ -61,24 +69,34 @@ merge2 i j ls = deleteList j $ ix i %~ (\l -> l ++ ls !! j) $ ls
 
 -- | Generalized aggregative scheme using Dendrogram
 gasd :: forall a.
-    (Dendrogram a -> Dendrogram a -> Float) -- ^ dendrogram distance
+    (Dendrogram a -> Dendrogram a -> Float) -- ^ dendrogram-dendrogram distance
     -> (Dendrogram a -> Dendrogram a -> a)  -- ^ representative update
-    -> [a] -> Dendrogram a
-gasd dd ru xs = agglomerated' 0 $ map dLeaf xs
+    -> [a]                                  -- ^ elements
+    -> Dendrogram a
+gasd ddist ru xs = agglomerated' 0 $ map dLeaf xs
     where
-        agglomerated' :: Int -> [Dendrogram a] -> Dendrogram a
+        agglomerated' :: Int    -- ^ current level
+            -> [Dendrogram a]   -- ^ current disconnected dendrograms
+            -> Dendrogram a     -- ^ final dendrogram
         agglomerated' _ [] = DNil
         agglomerated' _ ds@(d:_) | length ds == 1 = d
-        agglomerated' level ds = case findClosest2 dd ds of
+        agglomerated' level ds = case findClosest2 ddist ds of
             Nothing -> error "Nothing to merge!"
-            Just ((i, j), v) -> let (newl, newr) = (ds !! i, ds !!j) in
-                agglomerated' (level + 1) $ (DNode (ru newl newr) (level + 1) v newl newr) : dels [i, j] ds
+            Just ((i, j), v) -> let (newl, newr) = (ds !! i, ds !! j) in
+                agglomerated' (level + 1) $ DNode (ru newl newr)  -- create new dendrogram leaf
+                                                  (level + 1) 
+                                                  v 
+                                                  newl newr 
+                                            : dels [i, j] ds      -- add it to the list, deleting its constituents
 
 -- | Generalized aggregative scheme
-gas ::  Ord t => forall a. ([a] -> [a] -> t) -> [a] -> [[[a]]]
+gas :: forall a t. Ord t =>
+    ([a] -> [a] -> t)                   -- ^ cluster-cluster distance
+    -> [a]                              -- ^ elements
+    -> [[[a]]]                          -- ^ clusterings hierarchy i.e. dendrogram
 gas cd xs = agglomerate' [map (:[]) xs]
     where
-        -- agglomerate' :: [[[a]]] -> [[[a]]]
+        agglomerate' :: [[[a]]] -> [[[a]]]
         agglomerate' [] = []
         agglomerate' [[]] = []
         agglomerate' acs@(c:_) | length c == 1 = acs
@@ -86,7 +104,7 @@ gas cd xs = agglomerate' [map (:[]) xs]
             Nothing -> acs
             Just ((i, j), _) -> agglomerate' $ merge2 i j c:acs
 
-
+-- | Does not presume similarity symetry and hence is full O(n^2)
 buildSimilarityMtrx :: (a -> a -> Float) -> [a] -> Matrix Float
 buildSimilarityMtrx d xs = l >< l $ concatMap (\x -> map (d x) xs) xs
     where
@@ -98,9 +116,9 @@ muas p d = undefined -- TODO optimized agglomerative scheme using matrix update
 
 -- | Modified general divisive scheme
 mgds :: (Ord t, Num t, Fractional t) =>
-    (a -> a -> t) -- ^ dissimiliarity measure
-    -> [a]
-    -> [[[a]]]
+    (a -> a -> t)       -- ^ element-element dissimiliarity measure
+    -> [a]              -- ^ elements
+    -> [[[a]]]          -- ^ sequence of clusterings i.e. dendrogram
 mgds d [] = []
 mgds d xs = divideAll [[xs]]
     where
